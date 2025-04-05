@@ -1,0 +1,357 @@
+openapi: 3.0.0
+info:
+  title: Recipes API
+  description: API for recipes project
+  version: 1.0.1
+servers:
+  - url: "http://127.0.0.1:3000"
+    description: Local server
+tags:
+  - name: Auth
+    description: All authentication related routes
+  - name: Users
+    description: All the user's personal app info
+  - name: Recipes
+    description: All recipes general info
+paths:
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: A new user from the client is added to the server
+      description: A JSON object contains all the details about the new user.
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "201":
+          description: A new user has been added
+        "400":
+          description: wrong input parameters
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Login an existing user
+      description: An existing user login to the system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginScheme'
+        required: true
+      responses:
+        "200":
+          description: |
+            User was found in the DB and authenticated successfully. The session ID is returned in a cookie named `session`. You should include this cookie in subsequent requests
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: session=87s97sdhgf279293f8w0e9
+        "401":
+          description: Authentication failed
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout a user from the system and delete their cookie
+      responses:
+        "200":
+          description: The user has been successfully logged out
+  /users/favorites:
+    get:
+      tags:
+        - Users
+      summary: Return the favorite recipes that were saved by the user
+      description: Get an array of recipes that were saved by a specific user
+      responses:
+        "200":
+          description: Data about the user's favorite recipes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: User is not authorized
+      security:
+        - cookieAuth: []
+    post:
+      tags:
+        - Users
+      summary: Save a recipe in the favorites list of a user
+      description: Save a recipe in the favorites list of a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipeId:
+                  type: string
+                  description: Recipe's ID which the user saved
+                  example: 716429
+      responses:
+        "200":
+          description: The recipe was successfully saved as a favorite
+        "401":
+          description: User is not authorized
+      security:
+        - cookieAuth: []
+  /recipes/{recipeId}:
+    get:
+      tags:
+        - Recipes
+      summary: Return preview details on a recipe by its ID
+      description: Return preview details on a recipe by its ID
+      parameters:
+        - name: recipeId
+          in: path
+          description: Recipe's ID
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipePreview'
+        "404":
+          description: Recipe ID does not exist
+
+  /MainPage:
+    get:
+      tags:
+        - Pages
+      summary: Main page
+      description: Main page of the application
+      responses:
+        "200":
+          description: Main page loaded successfully
+
+  /RegisterPage:
+    get:
+      tags:
+        - Pages
+      summary: Register page
+      description: Page for user registration
+      responses:
+        "200":
+          description: Register page loaded successfully
+
+  /LoginPage:
+    get:
+      tags:
+        - Pages
+      summary: Login page
+      description: Page for user login
+      responses:
+        "200":
+          description: Login page loaded successfully
+
+  /AboutPage:
+    get:
+      tags:
+        - Pages
+      summary: About page
+      description: Page about the application
+      responses:
+        "200":
+          description: About page loaded successfully
+
+  /SearchPage:
+    get:
+      tags:
+        - Pages
+      summary: Search page
+      description: Page for searching recipes
+      responses:
+        "200":
+          description: Search page loaded successfully
+
+  /RecipeViewPage/{recipeId}:
+    get:
+      tags:
+        - Pages
+      summary: Recipe view page
+      description: Page for viewing a specific recipe
+      parameters:
+        - name: recipeId
+          in: path
+          description: Recipe's ID
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recipe view page loaded successfully
+        "404":
+          description: Recipe ID does not exist
+
+  /FavoritesPage:
+    get:
+      tags:
+        - Pages
+      summary: Favorites page
+      description: Page for viewing favorite recipes
+      responses:
+        "200":
+          description: Favorites page loaded successfully
+
+  /MyRecipesPage:
+    get:
+      tags:
+        - Pages
+      summary: My Recipes page
+      description: Page for viewing user's own recipes
+      responses:
+        "200":
+          description: My Recipes page loaded successfully
+
+  /FamilyRecipesPage:
+    get:
+      tags:
+        - Pages
+      summary: Family Recipes page
+      description: Page for viewing family recipes
+      responses:
+        "200":
+          description: Family Recipes page loaded successfully
+
+  /recipePreparingPage:
+    get:
+      tags:
+        - Pages
+      summary: Recipe Preparing page
+      description: Page for preparing a specific recipe
+      responses:
+        "200":
+          description: Recipe Preparing page loaded successfully
+
+  /mealPlanningPage:
+    get:
+      tags:
+        - Pages
+      summary: Meal Planning page
+      description: Page for planning meals
+      responses:
+        "200":
+          description: Meal Planning page loaded successfully
+
+  /{*}:
+    get:
+      tags:
+        - Pages
+      summary: Not Found page
+      description: Page not found
+      responses:
+        "404":
+          description: Page not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          description: Username contains between 3 to 8 letters only
+          example: my_name
+        firstname:
+          type: string
+          description: User's first name
+          example: my_first_name
+        lastname:
+          type: string
+          description: User's last name
+          example: my_last_name
+        country:
+          type: string
+          description: User's country
+          example: Israel
+        password:
+          maxLength: 10
+          minLength: 5
+          type: string
+          description: Password contains between 5 to 10 chars, at least one of them is a number and a special char
+          format: password
+          example: my_name@12
+        email:
+          pattern: email
+          type: string
+          description: User's email
+          example: my_name12@gmail.com
+      description: Model containing user info
+    LoginScheme:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          description: Username contains letters only
+        password:
+          maxLength: 10
+          minLength: 5
+          description: Password contains at least one number and one special char
+          format: password
+      example:
+        username: my_name
+        password: my_name@12
+    RecipePreview:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Recipe identifier
+          example: 102
+        title:
+          type: string
+          description: Recipe name
+          example: Simple Macaroni and Cheese
+        image:
+          type: string
+          description: Recipe image
+          format: URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        readyInMinutes:
+          type: integer
+          description: The time it takes to make this recipe
+          example: 45
+        popularity:
+          type: integer
+          description: How many likes this recipe has
+          example: 5987
+        vegetarian:
+          type: boolean
+          description: Indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: Indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: Indication if the recipe is gluten-free
+          example: false
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session

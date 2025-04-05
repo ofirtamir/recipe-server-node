@@ -1,0 +1,53 @@
+CREATE TABLE table_name(  
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    create_time DATETIME COMMENT 'Create Time',
+    name VARCHAR(255)
+) COMMENT '';
+
+CREATE TABLE users (
+    username VARCHAR(50) PRIMARY KEY,
+    firstname VARCHAR(50) NOT NULL,
+    lastname VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE familyrecipes (
+    recipeId INT AUTO_INCREMENT PRIMARY KEY,
+    image VARCHAR(255),
+    title VARCHAR(255),
+    readyInMinutes INT,
+    aggregateLikes INT,
+    servings INT,
+    vegetarian BOOLEAN,
+    vegan BOOLEAN,
+    glutenFree BOOLEAN,
+    summary TEXT,
+    instructions TEXT,
+    extendedIngredients JSON
+);
+
+CREATE TABLE FavoriteRecipes (
+    recipeId INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY (recipeId, username),
+    FOREIGN KEY (username) REFERENCES Users(username)
+);
+
+CREATE TABLE myrecipes (
+    recipeId INT AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    image VARCHAR(255),
+    title VARCHAR(255),
+    readyInMinutes INT,
+    aggregateLikes INT,
+    servings INT,
+    vegetarian BOOLEAN,
+    vegan BOOLEAN,
+    glutenFree BOOLEAN,
+    summary TEXT,
+    instructions TEXT,
+    extendedIngredients JSON,
+    PRIMARY KEY (recipeId, username)
+);
